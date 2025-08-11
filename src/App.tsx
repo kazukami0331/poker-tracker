@@ -4,6 +4,7 @@ interface PlayerStats {
   vpip: number;
   pfr: number;
   checkRaise: number;
+  memo: string;
 }
 
 type PlayerType = 'TAG' | 'LAG' | 'TP' | 'LP' | 'Unknown';
@@ -11,7 +12,7 @@ type PlayerType = 'TAG' | 'LAG' | 'TP' | 'LP' | 'Unknown';
 const PokerStatsApp: React.FC = () => {
   const [hands, setHands] = useState(0);
   const [playerStats, setPlayerStats] = useState<PlayerStats[]>(
-    Array(9).fill(null).map(() => ({ vpip: 0, pfr: 0, checkRaise: 0 }))
+    Array(9).fill(null).map(() => ({ vpip: 0, pfr: 0, checkRaise: 0, memo: '' }))
   );
 
   // ローカルストレージから読み込み
@@ -50,13 +51,24 @@ const PokerStatsApp: React.FC = () => {
 
   const resetAllStats = () => {
     setHands(0);
-    setPlayerStats(Array(9).fill(null).map(() => ({ vpip: 0, pfr: 0, checkRaise: 0 })));
+    setPlayerStats(Array(9).fill(null).map(() => ({ vpip: 0, pfr: 0, checkRaise: 0, memo: '' })));
   };
 
   const resetPlayerStats = (playerIndex: number) => {
     setPlayerStats(prev => {
       const newStats = [...prev];
-      newStats[playerIndex] = { vpip: 0, pfr: 0, checkRaise: 0 };
+      newStats[playerIndex] = { vpip: 0, pfr: 0, checkRaise: 0, memo: '' };
+      return newStats;
+    });
+  };
+
+  const updatePlayerMemo = (playerIndex: number, memo: string) => {
+    setPlayerStats(prev => {
+      const newStats = [...prev];
+      newStats[playerIndex] = {
+        ...newStats[playerIndex],
+        memo: memo
+      };
       return newStats;
     });
   };
@@ -179,145 +191,202 @@ const PokerStatsApp: React.FC = () => {
             <div 
               key={playerNumber} 
               style={{ 
+                backgroundColor: 'white',
+                borderRadius: '6px',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                overflow: 'hidden'
+              }}
+            >
+              {/* メインの統計行 */}
+              <div style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
                 padding: '6px',
-                backgroundColor: 'white',
-                borderRadius: '6px',
-                gap: '6px',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-              }}
-            >
-              {/* プレイヤー番号とタイプ */}
+                gap: '6px'
+              }}>
+                {/* プレイヤー番号とタイプ */}
+                <div style={{ 
+                  minWidth: '40px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: 'bold', 
+                    color: '#1f2937' 
+                  }}>
+                    P{playerNumber}
+                  </div>
+                  <div style={{
+                    fontSize: '8px',
+                    color: getTypeColor(playerType),
+                    fontWeight: '600'
+                  }}>
+                    {playerType}
+                  </div>
+                </div>
+
+                {/* 統計表示 */}
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '8px', 
+                  flex: 1,
+                  fontSize: '11px'
+                }}>
+                  <div style={{ textAlign: 'center', minWidth: '35px' }}>
+                    <div style={{ fontWeight: 'bold', color: '#3b82f6' }}>
+                      {vpipPercent}%
+                    </div>
+                    <div style={{ color: '#6b7280', fontSize: '9px' }}>
+                      V{stats.vpip}
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'center', minWidth: '35px' }}>
+                    <div style={{ fontWeight: 'bold', color: '#10b981' }}>
+                      {pfrPercent}%
+                    </div>
+                    <div style={{ color: '#6b7280', fontSize: '9px' }}>
+                      P{stats.pfr}
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'center', minWidth: '35px' }}>
+                    <div style={{ fontWeight: 'bold', color: '#f59e0b' }}>
+                      {stats.checkRaise}
+                    </div>
+                    <div style={{ color: '#6b7280', fontSize: '9px' }}>
+                      CR
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'center', minWidth: '30px' }}>
+                    <div style={{ fontWeight: 'bold', color: '#6b7280', fontSize: '10px' }}>
+                      {Math.max(0, vpipPercent - pfrPercent)}
+                    </div>
+                    <div style={{ color: '#6b7280', fontSize: '8px' }}>
+                      差
+                    </div>
+                  </div>
+                </div>
+
+                {/* アクションボタン */}
+                <div style={{ display: 'flex', gap: '3px' }}>
+                  <button
+                    onClick={() => incrementPlayerStat(index, 'vpip')}
+                    style={{
+                      padding: '4px 6px',
+                      backgroundColor: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      fontSize: '10px',
+                      fontWeight: '500',
+                      minWidth: '30px'
+                    }}
+                  >
+                    V
+                  </button>
+                  <button
+                    onClick={() => incrementPlayerStat(index, 'pfr')}
+                    style={{
+                      padding: '4px 6px',
+                      backgroundColor: '#10b981',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      fontSize: '10px',
+                      fontWeight: '500',
+                      minWidth: '30px'
+                    }}
+                  >
+                    P
+                  </button>
+                  <button
+                    onClick={() => incrementPlayerStat(index, 'checkRaise')}
+                    style={{
+                      padding: '4px 6px',
+                      backgroundColor: '#f59e0b',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      fontSize: '10px',
+                      fontWeight: '500',
+                      minWidth: '30px'
+                    }}
+                  >
+                    C
+                  </button>
+                  <button
+                    onClick={() => resetPlayerStats(index)}
+                    style={{
+                      padding: '4px 6px',
+                      backgroundColor: '#6b7280',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      fontSize: '10px',
+                      minWidth: '25px'
+                    }}
+                  >
+                    ↻
+                  </button>
+                </div>
+              </div>
+
+              {/* メモ欄 */}
               <div style={{ 
-                minWidth: '40px',
-                textAlign: 'center'
+                padding: '6px',
+                borderTop: '1px solid #f1f5f9',
+                backgroundColor: '#f8fafc'
               }}>
                 <div style={{ 
-                  fontSize: '14px', 
-                  fontWeight: 'bold', 
-                  color: '#1f2937' 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '6px' 
                 }}>
-                  P{playerNumber}
-                </div>
-                <div style={{
-                  fontSize: '8px',
-                  color: getTypeColor(playerType),
-                  fontWeight: '600'
-                }}>
-                  {playerType}
-                </div>
-              </div>
-
-              {/* 統計表示 */}
-              <div style={{ 
-                display: 'flex', 
-                gap: '8px', 
-                flex: 1,
-                fontSize: '11px'
-              }}>
-                <div style={{ textAlign: 'center', minWidth: '35px' }}>
-                  <div style={{ fontWeight: 'bold', color: '#3b82f6' }}>
-                    {vpipPercent}%
-                  </div>
-                  <div style={{ color: '#6b7280', fontSize: '9px' }}>
-                    V{stats.vpip}
-                  </div>
-                </div>
-
-                <div style={{ textAlign: 'center', minWidth: '35px' }}>
-                  <div style={{ fontWeight: 'bold', color: '#10b981' }}>
-                    {pfrPercent}%
-                  </div>
-                  <div style={{ color: '#6b7280', fontSize: '9px' }}>
-                    P{stats.pfr}
-                  </div>
-                </div>
-
-                <div style={{ textAlign: 'center', minWidth: '35px' }}>
-                  <div style={{ fontWeight: 'bold', color: '#f59e0b' }}>
-                    {stats.checkRaise}
-                  </div>
-                  <div style={{ color: '#6b7280', fontSize: '9px' }}>
-                    CR
-                  </div>
-                </div>
-
-                <div style={{ textAlign: 'center', minWidth: '30px' }}>
-                  <div style={{ fontWeight: 'bold', color: '#6b7280', fontSize: '10px' }}>
-                    {Math.max(0, vpipPercent - pfrPercent)}
-                  </div>
-                  <div style={{ color: '#6b7280', fontSize: '8px' }}>
-                    差
-                  </div>
-                </div>
-              </div>
-
-              {/* アクションボタン */}
-              <div style={{ display: 'flex', gap: '3px' }}>
-                <button
-                  onClick={() => incrementPlayerStat(index, 'vpip')}
-                  style={{
-                    padding: '4px 6px',
-                    backgroundColor: '#3b82f6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '3px',
-                    cursor: 'pointer',
-                    fontSize: '10px',
-                    fontWeight: '500',
+                  <span style={{ 
+                    fontSize: '10px', 
+                    color: '#6b7280',
                     minWidth: '30px'
-                  }}
-                >
-                  V
-                </button>
-                <button
-                  onClick={() => incrementPlayerStat(index, 'pfr')}
-                  style={{
-                    padding: '4px 6px',
-                    backgroundColor: '#10b981',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '3px',
-                    cursor: 'pointer',
-                    fontSize: '10px',
-                    fontWeight: '500',
-                    minWidth: '30px'
-                  }}
-                >
-                  P
-                </button>
-                <button
-                  onClick={() => incrementPlayerStat(index, 'checkRaise')}
-                  style={{
-                    padding: '4px 6px',
-                    backgroundColor: '#f59e0b',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '3px',
-                    cursor: 'pointer',
-                    fontSize: '10px',
-                    fontWeight: '500',
-                    minWidth: '30px'
-                  }}
-                >
-                  C
-                </button>
-                <button
-                  onClick={() => resetPlayerStats(index)}
-                  style={{
-                    padding: '4px 6px',
-                    backgroundColor: '#6b7280',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '3px',
-                    cursor: 'pointer',
-                    fontSize: '10px',
-                    minWidth: '25px'
-                  }}
-                >
-                  ↻
-                </button>
+                  }}>
+                    📝
+                  </span>
+                  <input
+                    type="text"
+                    value={stats.memo}
+                    onChange={(e) => updatePlayerMemo(index, e.target.value)}
+                    placeholder="プレイヤーの特徴をメモ..."
+                    style={{
+                      flex: 1,
+                      padding: '4px 6px',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '3px',
+                      fontSize: '11px',
+                      backgroundColor: 'white',
+                      color: '#374151'
+                    }}
+                  />
+                  {stats.memo && (
+                    <button
+                      onClick={() => updatePlayerMemo(index, '')}
+                      style={{
+                        padding: '2px 4px',
+                        backgroundColor: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '2px',
+                        cursor: 'pointer',
+                        fontSize: '8px'
+                      }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           );
