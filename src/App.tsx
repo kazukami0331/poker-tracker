@@ -43,7 +43,7 @@ const PokerStatsApp: React.FC = () => {
       const newStats = [...prev];
       newStats[playerIndex] = {
         ...newStats[playerIndex],
-        [stat]: newStats[playerIndex][stat] + 1
+        [stat]: Number(newStats[playerIndex][stat]) + 1
       };
       return newStats;
     });
