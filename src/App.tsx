@@ -140,7 +140,7 @@ const PokerStatsApp: React.FC = () => {
             fontWeight: 'bold', 
             color: '#3b82f6'
           }}>
-            {hands}H
+            {hands}ハンド
           </div>
         </div>
         
@@ -260,12 +260,12 @@ const PokerStatsApp: React.FC = () => {
                     </div>
                   </div>
 
-                  <div style={{ textAlign: 'center', minWidth: '25px' }}>
+                  <div style={{ textAlign: 'center', minWidth: '30px' }}>
                     <div style={{ fontWeight: 'bold', color: '#6b7280', fontSize: '10px' }}>
-                      {Math.max(0, vpipPercent - pfrPercent)}
+                      {Math.max(0, vpipPercent - pfrPercent)}%
                     </div>
                     <div style={{ color: '#6b7280', fontSize: '7px' }}>
-                      差分
+                      V-P差
                     </div>
                   </div>
                 </div>
