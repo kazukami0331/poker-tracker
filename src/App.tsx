@@ -38,12 +38,12 @@ const PokerStatsApp: React.FC = () => {
     setHands(prev => prev + 1);
   };
 
-  const incrementPlayerStat = (playerIndex: number, stat: keyof PlayerStats) => {
+  const incrementPlayerStat = (playerIndex: number, stat: keyof Omit<PlayerStats, 'memo'>) => {
     setPlayerStats(prev => {
       const newStats = [...prev];
       newStats[playerIndex] = {
         ...newStats[playerIndex],
-        [stat]: Number(newStats[playerIndex][stat]) + 1
+        [stat]: (newStats[playerIndex][stat] as number) + 1
       };
       return newStats;
     });
@@ -186,6 +186,7 @@ const PokerStatsApp: React.FC = () => {
           const playerType = getPlayerType(index);
           const vpipPercent = calculatePercentage(stats.vpip, hands);
           const pfrPercent = calculatePercentage(stats.pfr, hands);
+          const checkRaisePercent = calculatePercentage(stats.checkRaise, hands);
 
           return (
             <div 
@@ -228,61 +229,61 @@ const PokerStatsApp: React.FC = () => {
                 {/* 統計表示 */}
                 <div style={{ 
                   display: 'flex', 
-                  gap: '8px', 
+                  gap: '6px', 
                   flex: 1,
-                  fontSize: '11px'
+                  fontSize: '10px'
                 }}>
-                  <div style={{ textAlign: 'center', minWidth: '35px' }}>
-                    <div style={{ fontWeight: 'bold', color: '#3b82f6' }}>
+                  <div style={{ textAlign: 'center', minWidth: '32px' }}>
+                    <div style={{ fontWeight: 'bold', color: '#3b82f6', fontSize: '11px' }}>
                       {vpipPercent}%
                     </div>
-                    <div style={{ color: '#6b7280', fontSize: '9px' }}>
-                      V{stats.vpip}
+                    <div style={{ color: '#6b7280', fontSize: '8px' }}>
+                      V{stats.vpip}/{hands}
                     </div>
                   </div>
 
-                  <div style={{ textAlign: 'center', minWidth: '35px' }}>
-                    <div style={{ fontWeight: 'bold', color: '#10b981' }}>
+                  <div style={{ textAlign: 'center', minWidth: '32px' }}>
+                    <div style={{ fontWeight: 'bold', color: '#10b981', fontSize: '11px' }}>
                       {pfrPercent}%
                     </div>
-                    <div style={{ color: '#6b7280', fontSize: '9px' }}>
-                      P{stats.pfr}
+                    <div style={{ color: '#6b7280', fontSize: '8px' }}>
+                      P{stats.pfr}/{hands}
                     </div>
                   </div>
 
-                  <div style={{ textAlign: 'center', minWidth: '35px' }}>
-                    <div style={{ fontWeight: 'bold', color: '#f59e0b' }}>
-                      {stats.checkRaise}
+                  <div style={{ textAlign: 'center', minWidth: '32px' }}>
+                    <div style={{ fontWeight: 'bold', color: '#f59e0b', fontSize: '11px' }}>
+                      {checkRaisePercent}%
                     </div>
-                    <div style={{ color: '#6b7280', fontSize: '9px' }}>
-                      CR
+                    <div style={{ color: '#6b7280', fontSize: '8px' }}>
+                      C{stats.checkRaise}/{hands}
                     </div>
                   </div>
 
-                  <div style={{ textAlign: 'center', minWidth: '30px' }}>
+                  <div style={{ textAlign: 'center', minWidth: '25px' }}>
                     <div style={{ fontWeight: 'bold', color: '#6b7280', fontSize: '10px' }}>
                       {Math.max(0, vpipPercent - pfrPercent)}
                     </div>
-                    <div style={{ color: '#6b7280', fontSize: '8px' }}>
-                      差
+                    <div style={{ color: '#6b7280', fontSize: '7px' }}>
+                      差分
                     </div>
                   </div>
                 </div>
 
                 {/* アクションボタン */}
-                <div style={{ display: 'flex', gap: '3px' }}>
+                <div style={{ display: 'flex', gap: '2px' }}>
                   <button
                     onClick={() => incrementPlayerStat(index, 'vpip')}
                     style={{
-                      padding: '4px 6px',
+                      padding: '4px 5px',
                       backgroundColor: '#3b82f6',
                       color: 'white',
                       border: 'none',
                       borderRadius: '3px',
                       cursor: 'pointer',
-                      fontSize: '10px',
+                      fontSize: '9px',
                       fontWeight: '500',
-                      minWidth: '30px'
+                      minWidth: '26px'
                     }}
                   >
                     V
@@ -290,15 +291,15 @@ const PokerStatsApp: React.FC = () => {
                   <button
                     onClick={() => incrementPlayerStat(index, 'pfr')}
                     style={{
-                      padding: '4px 6px',
+                      padding: '4px 5px',
                       backgroundColor: '#10b981',
                       color: 'white',
                       border: 'none',
                       borderRadius: '3px',
                       cursor: 'pointer',
-                      fontSize: '10px',
+                      fontSize: '9px',
                       fontWeight: '500',
-                      minWidth: '30px'
+                      minWidth: '26px'
                     }}
                   >
                     P
@@ -306,15 +307,15 @@ const PokerStatsApp: React.FC = () => {
                   <button
                     onClick={() => incrementPlayerStat(index, 'checkRaise')}
                     style={{
-                      padding: '4px 6px',
+                      padding: '4px 5px',
                       backgroundColor: '#f59e0b',
                       color: 'white',
                       border: 'none',
                       borderRadius: '3px',
                       cursor: 'pointer',
-                      fontSize: '10px',
+                      fontSize: '9px',
                       fontWeight: '500',
-                      minWidth: '30px'
+                      minWidth: '26px'
                     }}
                   >
                     C
@@ -322,14 +323,14 @@ const PokerStatsApp: React.FC = () => {
                   <button
                     onClick={() => resetPlayerStats(index)}
                     style={{
-                      padding: '4px 6px',
+                      padding: '4px 4px',
                       backgroundColor: '#6b7280',
                       color: 'white',
                       border: 'none',
                       borderRadius: '3px',
                       cursor: 'pointer',
-                      fontSize: '10px',
-                      minWidth: '25px'
+                      fontSize: '9px',
+                      minWidth: '22px'
                     }}
                   >
                     ↻
@@ -351,7 +352,7 @@ const PokerStatsApp: React.FC = () => {
                   <span style={{ 
                     fontSize: '10px', 
                     color: '#6b7280',
-                    minWidth: '30px'
+                    minWidth: '15px'
                   }}>
                     📝
                   </span>
@@ -362,10 +363,10 @@ const PokerStatsApp: React.FC = () => {
                     placeholder="プレイヤーの特徴をメモ..."
                     style={{
                       flex: 1,
-                      padding: '4px 6px',
+                      padding: '3px 6px',
                       border: '1px solid #e2e8f0',
                       borderRadius: '3px',
-                      fontSize: '11px',
+                      fontSize: '10px',
                       backgroundColor: 'white',
                       color: '#374151'
                     }}
@@ -403,6 +404,7 @@ const PokerStatsApp: React.FC = () => {
       }}>
         <div>V=VPIP, P=PFR, C=CheckRaise</div>
         <div>TAG/LAG/TP/LP (10H以上で判定)</div>
+        <div>📝 各プレイヤーの特徴をメモできます</div>
       </div>
     </div>
   );
