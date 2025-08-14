@@ -560,8 +560,16 @@ const PokerStatsApp: React.FC = () => {
         padding: '8px'
       }}>
         <div>V=VPIP, P=PFR, C=CheckRaise</div>
-        <div>TAG/LAG/TP/LP (10H以上で判定)</div>
+        <div>TAG/LAG/TP/LP ({minHands}H以上で判定)</div>
+        <div style={{ marginTop: '4px', padding: '4px', backgroundColor: '#f1f5f9', borderRadius: '4px' }}>
+          <div><strong>判別基準：</strong></div>
+          <div>TAG: VPIP≤{vpipThreshold}% かつ V-P差≤{tightDiffThreshold}% (タイト・アグレッシブ)</div>
+          <div>LAG: VPIP>{vpipThreshold}% かつ V-P差≤{looseDiffThreshold}% (ルーズ・アグレッシブ)</div>
+          <div>TP: VPIP≤{vpipThreshold}% かつ V-P差>{tightDiffThreshold}% (タイト・パッシブ)</div>
+          <div>LP: VPIP>{vpipThreshold}% かつ V-P差>{looseDiffThreshold}% (ルーズ・パッシブ)</div>
+        </div>
         <div>📝 各プレイヤーの特徴をメモできます</div>
+        <div>⚙️ 設定ボタンで判別基準をカスタマイズ可能</div>
       </div>
     </div>
   );
