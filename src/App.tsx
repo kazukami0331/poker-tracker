@@ -14,11 +14,20 @@ const PokerStatsApp: React.FC = () => {
   const [playerStats, setPlayerStats] = useState<PlayerStats[]>(
     Array(9).fill(null).map(() => ({ vpip: 0, pfr: 0, checkRaise: 0, memo: '' }))
   );
+  const [showSettings, setShowSettings] = useState(false);
+  const [vpipThreshold, setVpipThreshold] = useState(20);
+  const [tightDiffThreshold, setTightDiffThreshold] = useState(5);
+  const [looseDiffThreshold, setLooseDiffThreshold] = useState(8);
+  const [minHands, setMinHands] = useState(10);
 
   // ローカルストレージから読み込み
   useEffect(() => {
     const savedHands = localStorage.getItem('pokerHands');
     const savedStats = localStorage.getItem('pokerPlayerStats');
+    const savedVpipThreshold = localStorage.getItem('vpipThreshold');
+    const savedTightDiffThreshold = localStorage.getItem('tightDiffThreshold');
+    const savedLooseDiffThreshold = localStorage.getItem('looseDiffThreshold');
+    const savedMinHands = localStorage.getItem('minHands');
     
     if (savedHands) {
       setHands(parseInt(savedHands));
@@ -26,13 +35,29 @@ const PokerStatsApp: React.FC = () => {
     if (savedStats) {
       setPlayerStats(JSON.parse(savedStats));
     }
+    if (savedVpipThreshold) {
+      setVpipThreshold(parseInt(savedVpipThreshold));
+    }
+    if (savedTightDiffThreshold) {
+      setTightDiffThreshold(parseInt(savedTightDiffThreshold));
+    }
+    if (savedLooseDiffThreshold) {
+      setLooseDiffThreshold(parseInt(savedLooseDiffThreshold));
+    }
+    if (savedMinHands) {
+      setMinHands(parseInt(savedMinHands));
+    }
   }, []);
 
   // ローカルストレージに保存
   useEffect(() => {
     localStorage.setItem('pokerHands', hands.toString());
     localStorage.setItem('pokerPlayerStats', JSON.stringify(playerStats));
-  }, [hands, playerStats]);
+    localStorage.setItem('vpipThreshold', vpipThreshold.toString());
+    localStorage.setItem('tightDiffThreshold', tightDiffThreshold.toString());
+    localStorage.setItem('looseDiffThreshold', looseDiffThreshold.toString());
+    localStorage.setItem('minHands', minHands.toString());
+  }, [hands, playerStats, vpipThreshold, tightDiffThreshold, looseDiffThreshold, minHands]);
 
   const incrementHands = () => {
     setHands(prev => prev + 1);
@@ -75,16 +100,16 @@ const PokerStatsApp: React.FC = () => {
 
   const getPlayerType = (playerIndex: number): PlayerType => {
     const stats = playerStats[playerIndex];
-    if (hands < 10) return 'Unknown';
+    if (hands < minHands) return 'Unknown';
     
     const vpipPercent = (stats.vpip / hands) * 100;
     const pfrPercent = (stats.pfr / hands) * 100;
     const diff = vpipPercent - pfrPercent;
     
-    if (vpipPercent <= 20) {
-      return diff <= 5 ? 'TAG' : 'TP';
+    if (vpipPercent <= vpipThreshold) {
+      return diff <= tightDiffThreshold ? 'TAG' : 'TP';
     } else {
-      return diff <= 8 ? 'LAG' : 'LP';
+      return diff <= looseDiffThreshold ? 'LAG' : 'LP';
     }
   };
 
@@ -175,7 +200,139 @@ const PokerStatsApp: React.FC = () => {
           >
             リセット
           </button>
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            style={{
+              padding: '6px 12px',
+              backgroundColor: '#6b7280',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: '500',
+              fontSize: '12px'
+            }}
+          >
+            設定
+          </button>
         </div>
+
+        {/* 設定パネル */}
+        {showSettings && (
+          <div style={{
+            marginTop: '12px',
+            padding: '12px',
+            backgroundColor: '#f1f5f9',
+            borderRadius: '6px',
+            border: '1px solid #e2e8f0'
+          }}>
+            <h3 style={{ fontSize: '14px', fontWeight: '600', margin: '0 0 8px 0', color: '#374151' }}>
+              プレイヤータイプ判別設定
+            </h3>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '11px' }}>
+              <div>
+                <label style={{ display: 'block', color: '#6b7280', marginBottom: '2px' }}>
+                  VPIP閾値 (タイト/ルーズ)
+                </label>
+                <input
+                  type="number"
+                  value={vpipThreshold}
+                  onChange={(e) => setVpipThreshold(parseInt(e.target.value))}
+                  style={{
+                    width: '100%',
+                    padding: '4px 6px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '3px',
+                    fontSize: '11px'
+                  }}
+                />
+                <div style={{ color: '#9ca3af', fontSize: '9px', marginTop: '1px' }}>
+                  {vpipThreshold}%以下=タイト
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', color: '#6b7280', marginBottom: '2px' }}>
+                  最小ハンド数
+                </label>
+                <input
+                  type="number"
+                  value={minHands}
+                  onChange={(e) => setMinHands(parseInt(e.target.value))}
+                  style={{
+                    width: '100%',
+                    padding: '4px 6px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '3px',
+                    fontSize: '11px'
+                  }}
+                />
+                <div style={{ color: '#9ca3af', fontSize: '9px', marginTop: '1px' }}>
+                  判定に必要なハンド数
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', color: '#6b7280', marginBottom: '2px' }}>
+                  タイト差分閾値
+                </label>
+                <input
+                  type="number"
+                  value={tightDiffThreshold}
+                  onChange={(e) => setTightDiffThreshold(parseInt(e.target.value))}
+                  style={{
+                    width: '100%',
+                    padding: '4px 6px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '3px',
+                    fontSize: '11px'
+                  }}
+                />
+                <div style={{ color: '#9ca3af', fontSize: '9px', marginTop: '1px' }}>
+                  {tightDiffThreshold}%以下=アグレッシブ
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', color: '#6b7280', marginBottom: '2px' }}>
+                  ルーズ差分閾値
+                </label>
+                <input
+                  type="number"
+                  value={looseDiffThreshold}
+                  onChange={(e) => setLooseDiffThreshold(parseInt(e.target.value))}
+                  style={{
+                    width: '100%',
+                    padding: '4px 6px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '3px',
+                    fontSize: '11px'
+                  }}
+                />
+                <div style={{ color: '#9ca3af', fontSize: '9px', marginTop: '1px' }}>
+                  {looseDiffThreshold}%以下=アグレッシブ
+                </div>
+              </div>
+            </div>
+
+            <div style={{ 
+              marginTop: '8px', 
+              padding: '6px', 
+              backgroundColor: '#e0f2fe', 
+              borderRadius: '4px',
+              fontSize: '9px',
+              color: '#0c4a6e'
+            }}>
+              <div><strong>現在の判別基準：</strong></div>
+              <div>• TAG: VPIP≤{vpipThreshold}% かつ V-P差≤{tightDiffThreshold}%</div>
+              <div>• LAG: VPIP>{vpipThreshold}% かつ V-P差≤{looseDiffThreshold}%</div>
+              <div>• TP: VPIP≤{vpipThreshold}% かつ V-P差>{tightDiffThreshold}%</div>
+              <div>• LP: VPIP>{vpipThreshold}% かつ V-P差>{looseDiffThreshold}%</div>
+              <div>• Unknown: {minHands}ハンド未満</div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* プレイヤー一覧 */}
